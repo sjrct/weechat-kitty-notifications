@@ -29,6 +29,7 @@
 
 import base64
 import datetime
+import secrets
 import weechat
 
 
@@ -147,11 +148,12 @@ def print_osc99(
     title: str,
     body: str,
 ) -> None:
+    ident = secrets.token_urlsafe(4)
     title = to_b64(title)
     body = to_b64(body)
     app = to_b64("weechat")
     icon = to_b64(weechat.config_get_plugin("icon"))
 
     with open("/dev/tty", "w") as tty:
-        tty.write(f"\x1b]99;f={app}:n={icon}:i=1:e=1:d=0:p=title;{title}\x1b\\")
-        tty.write(f"\x1b]99;f={app}:n={icon}:i=1:e=1:d=1:p=body;{body}\x1b\\")
+        tty.write(f"\x1b]99;f={app}:n={icon}:i={ident}:e=1:d=0:p=title;{title}\x1b\\")
+        tty.write(f"\x1b]99;f={app}:n={icon}:i={ident}:e=1:d=1:p=body;{body}\x1b\\")
