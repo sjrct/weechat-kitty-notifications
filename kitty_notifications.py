@@ -58,6 +58,19 @@ DEFAULT_OPTIONS = {
     "tags": "",
 }
 
+version = weechat.info_get("version_number", "") or 0
+if int(version) >= 0x00030500:
+    weechat.config_set_desc_plugin(
+        "force_tmux_passthrough",
+        "always send tmux passthrough escape sequences (useful if tmux environment variables are not "
+        "set for some reason, such as running weechat in a docker container)"
+    )
+    weechat.config_set_desc_plugin(
+        "icon",
+        "name of the icon to display with the notification"
+    )
+
+
 for key, val in DEFAULT_OPTIONS.items():
     if not weechat.config_is_set_plugin(key):
         weechat.config_set_plugin(key, val)
@@ -175,11 +188,11 @@ def notify_cmd(data, buffer, args):
     try:
         spl = shlex.split(args)
     except ValueError as e:
-        weechat.prnt("", f"Could not parse arguments: {e}")
+        weechat.prnt("", f"kitty_notifications: could not parse arguments: {e}")
         return weechat.WEECHAT_RC_OK
 
     if len(spl) == 0:
-        weechat.prnt("", "You must specify at least a notification title")
+        weechat.prnt("", "kitty_notifications: you must specify at least a notification title")
         return weechat.WEECHAT_RC_OK
 
     title = spl[0]
