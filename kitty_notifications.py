@@ -31,6 +31,7 @@ import os
 import base64
 import datetime
 import secrets
+import shlex
 import weechat
 
 
@@ -168,3 +169,37 @@ def print_osc99(
     with open("/dev/tty", "w") as tty:
         tty.write(wrap_tmux(f"\x1b]99;f={app}:n={icon}:i={ident}:e=1:d=0:p=title;{title}\x1b\\"))
         tty.write(wrap_tmux(f"\x1b]99;f={app}:n={icon}:i={ident}:e=1:d=1:p=body;{body}\x1b\\"))
+
+
+def notify_cmd(data, buffer, args):
+    try:
+        spl = shlex.split(args)
+    except ValueError as e:
+        weechat.prnt("", f"Could not parse arguments: {e}")
+        return weechat.WEECHAT_RC_OK
+
+    if len(spl) == 0:
+        weechat.prnt("", "You must specify at least a notification title")
+        return weechat.WEECHAT_RC_OK
+
+    title = spl[0]
+    body = " ".join(spl[1:])
+
+    print_osc99(title, body)
+
+    return weechat.WEECHAT_RC_OK
+
+
+weechat.hook_command(
+    "kitty_notify",
+    "Send a notification via an OSC 99 escape sequence. This requires that "
+    "terminal be one that supports OSC 99, such as kitty. If you are in a tmux "
+    "session, your tmux version must be at least 3.3 and you must have the "
+    "'allow-passthrough' option set to 'on' or 'all'. ",
+    "<title> [message]",
+    "title: title of the notification\n"
+    "message: body of the notification\n",
+    "",
+    "notify_cmd",
+    ""
+)
