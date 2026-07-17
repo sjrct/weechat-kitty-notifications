@@ -27,6 +27,7 @@
 # Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 # included under the MIT license (https://opensource.org/license/mit/)
 
+import os
 import base64
 import datetime
 import secrets
@@ -50,6 +51,7 @@ DEFAULT_OPTIONS = {
     "show_message_text": "on",
     "ignore_old_messages": "off",
     "ignore_current_buffer_messages": "off",
+    "force_tmux_passthrough": "off",
     "icon": "weechat",
     "channels": "",
     "tags": "",
@@ -140,6 +142,15 @@ def notify(
     return weechat.WEECHAT_RC_OK
 
 
+def wrap_tmux(seq):
+    if (
+        weechat.config_get_plugin("force_tmux_passthrough") == "on"
+        or os.getenv("TERM_PROGRAM") == "tmux"
+    ):
+        return "\x1bPtmux;" + seq.replace("\x1b", "\x1b\x1b") + "\x1b\\"
+    return seq
+
+
 def to_b64(s):
     return base64.b64encode(s.encode("utf-8")).decode("ascii")
 
@@ -155,5 +166,5 @@ def print_osc99(
     icon = to_b64(weechat.config_get_plugin("icon"))
 
     with open("/dev/tty", "w") as tty:
-        tty.write(f"\x1b]99;f={app}:n={icon}:i={ident}:e=1:d=0:p=title;{title}\x1b\\")
-        tty.write(f"\x1b]99;f={app}:n={icon}:i={ident}:e=1:d=1:p=body;{body}\x1b\\")
+        tty.write(wrap_tmux(f"\x1b]99;f={app}:n={icon}:i={ident}:e=1:d=0:p=title;{title}\x1b\\"))
+        tty.write(wrap_tmux(f"\x1b]99;f={app}:n={icon}:i={ident}:e=1:d=1:p=body;{body}\x1b\\"))
