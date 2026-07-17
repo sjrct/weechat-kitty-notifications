@@ -49,6 +49,7 @@ DEFAULT_OPTIONS = {
     "show_message_text": "on",
     "ignore_old_messages": "off",
     "ignore_current_buffer_messages": "off",
+    "icon": "weechat",
     "channels": "",
     "tags": "",
 }
@@ -148,7 +149,9 @@ def print_osc99(
 ) -> None:
     title = to_b64(title)
     body = to_b64(body)
+    app = to_b64("weechat")
+    icon = to_b64(weechat.config_get_plugin("icon"))
 
     with open("/dev/tty", "w") as tty:
-        tty.write(f"\x1b]99;i=1:e=1:d=0:p=title;{title}\x1b\\")
-        tty.write(f"\x1b]99;i=1:e=1:d=1:p=body;{body}\x1b\\")
+        tty.write(f"\x1b]99;f={app}:n={icon}:i=1:e=1:d=0:p=title;{title}\x1b\\")
+        tty.write(f"\x1b]99;f={app}:n={icon}:i=1:e=1:d=1:p=body;{body}\x1b\\")
