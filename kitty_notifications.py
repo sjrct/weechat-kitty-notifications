@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) Emma Eilefsen Glenna <emma@eilefsen.net> (https://eilefsen.net)
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -19,7 +20,9 @@
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # ATTRIBUTIONS:
-# This script was made by modifying an older script referenced below
+#
+# This script was made by modifying an older script referenced below:
+#
 # notifications_center (https://github.com/sindresorhus/weechat-notification-center)
 # Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 # included under the MIT license (https://opensource.org/license/mit/)
@@ -32,7 +35,7 @@ SCRIPT_NAME = "kitty_notifications"
 SCRIPT_AUTHOR = "Emma Eilefsen Glenna <emma@eilefsen.net>"
 SCRIPT_VERSION = "1.0.0"
 SCRIPT_LICENSE = "MIT"
-SCRIPT_DESC = "Pass highlights and private messages as OS notifcations via the Kitty terminal (OSC 99)"
+SCRIPT_DESC = "Pass highlights and private messages as OS notifications via the Kitty terminal (OSC 99)"
 
 weechat.register(
     SCRIPT_NAME, SCRIPT_AUTHOR, SCRIPT_VERSION, SCRIPT_LICENSE, SCRIPT_DESC, "", ""
@@ -80,7 +83,7 @@ def notify(
     ):
         return weechat.WEECHAT_RC_OK
 
-    # Ignore messages older than the configured theshold (such as ZNC logs) if enabled
+    # Ignore messages older than the configured threshold (such as ZNC logs) if enabled
     if weechat.config_get_plugin("ignore_old_messages") == "on":
         message_time = datetime.datetime.fromtimestamp(int(date))
         now_time = datetime.datetime.now()
@@ -139,6 +142,5 @@ def print_osc99(
     body: str,
 ) -> None:
     with open("/dev/tty", "w") as tty:
-        tty.write(
-            f"\x1b]99;i=1:d=0:p=title;{title}\x1b\\ \x1b]99;i=1:d=1:p=body;{body}\x1b\\"
-        )
+        tty.write(f"\x1b]99;i=1:d=0:p=title;{title}\x1b\\")
+        tty.write(f"\x1b]99;i=1:d=1:p=body;{body}\x1b\\")
